@@ -1,0 +1,273 @@
+{
+  "name": "EMAIL RESPONDER",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {},
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -680,
+        -120
+      ],
+      "id": "681f3623-dc47-4213-a348-62b2dc5debc1",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Im51ZWPP3GyPjgcF",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.text }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "job_update",
+              "description": "A job update email is a message sent by a recruiter, hiring manager, or HR team to inform a candidate about the status of their job application. This could include updates such as:  Being shortlisted for the next round  Being invited to an interview  A request for additional documents or availability  A notification that the position has been filled  A polite rejection  These emails are typically professional and concise. Your response should acknowledge the update, express appreciation, and—if still interested—confirm your willingness to proceed or provide any required information."
+            },
+            {
+              "category": "low_priority",
+              "description": "A low priority email is a message that does not require immediate attention and can be addressed at your convenience. These emails are typically non-urgent and don’t affect key decisions or deadlines.  📨 Common Types of Low Priority Emails: Promotional emails – sales, discounts, product launches, brand campaigns  Newsletters – industry updates, blog posts, event recaps  Non-urgent follow-ups – friendly check-ins or soft reminders  Informational updates – general announcements not requiring action  Courtesy responses – “Thank you” or “Noted” replies  Internal updates – low-impact notifications or status updates  These emails are best reviewed during downtime or email review blocks, allowing you to focus on high-priority messages first."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        -380,
+        -20
+      ],
+      "id": "b240ff99-82ec-4fcd-b4da-59e1309845dd",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -480,
+        180
+      ],
+      "id": "cb7c4591-1515-48b4-9737-fc59112f17e0",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "BGPEhTzcpN8w5uAP",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are an assistant of Simran,a business analyst.\nYour job is to respond to the email below in best way possible.\nFirst,\nGreeting\n\nAddress the sender respectfully (e.g., “Dear [Name]” or “Hello Hiring Team”).\n\nAcknowledgement of the Update\n\nBriefly reference the role and thank the sender for the update or communication.\n\nResponse Based on Update Type:\n\nIf shortlisted: Express appreciation and confirm continued interest.\n\nIf selected for interview: Confirm availability and enthusiasm.\n\nIf more information is requested: Provide or mention that it’s attached.\n\nIf rejected: Thank them for the opportunity and express openness to future roles.\n\nProfessional Tone\n\nMaintain a formal, appreciative, and positive tone regardless of the update.\n\nClosing\n\nUse a courteous closing statement (e.g., “Looking forward to hearing from you,” or “Warm regards”) followed by the sender’s name and contact information (if needed).\nI need you to respond in two parts that is email subject and email body\nThe email to respond to is :\n\n\n {{ $json.text }}\n\n",
+              "role": "system"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -20,
+        -120
+      ],
+      "id": "6adf1672-f528-4d2d-b70d-00d09628bb05",
+      "name": "OpenAI",
+      "credentials": {
+        "openAiApi": {
+          "id": "BGPEhTzcpN8w5uAP",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.message.content.email_subject }}",
+        "message": "={{ $json.message.content.email_body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        340,
+        -120
+      ],
+      "id": "dfc990b0-746e-4d9f-9b81-82cb755925a9",
+      "name": "Gmail",
+      "webhookId": "2d315cfd-9b80-40e2-8cc0-31dd1e913539",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Im51ZWPP3GyPjgcF",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4O-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=You are simran's assistant. Your job is to reply to the low priority email in best way possible.\nGive response in  two parts that are subject and body \n\nThe email is -\n\n\n\n {{ $json.text }}",
+              "role": "system"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        -20,
+        80
+      ],
+      "id": "e0f34f97-aa24-4a52-981e-23033edcf67c",
+      "name": "OpenAI1",
+      "credentials": {
+        "openAiApi": {
+          "id": "BGPEhTzcpN8w5uAP",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.message.content.subject }}",
+        "message": "={{ $json.message.content.body }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        340,
+        80
+      ],
+      "id": "5faef4d8-00d8-4b1e-be09-3e840c2c4522",
+      "name": "Gmail1",
+      "webhookId": "6cfabe6d-777c-40da-8d9e-301eb891a077",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Im51ZWPP3GyPjgcF",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "OpenAI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI1": {
+      "main": [
+        [
+          {
+            "node": "Gmail1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "cff0a222-e859-4c6c-9f1e-bf2b1006cc1d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d928f343ec788fd34eab62f647fea8c53bc2cfe9026d9a0a6117ce460f3bc62a"
+  },
+  "id": "HKoHQNcR391XpEBm",
+  "tags": []
+}
